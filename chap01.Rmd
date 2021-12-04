@@ -1,23 +1,152 @@
 ---
-title: "Principal Component Analysis"
-output: html_notebook
+title: "Chap 1<br>Principal Component Analysis"
+author: "François Lefebvre"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output: 
+  prettydoc::html_pretty:
+      toc: yes
+      toc_depth: 2
+      number_sections: true
+      theme: architect
+      highlight: github
 ---
 
-```{r}
-# setup chunk
+```{r setup, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(paletteer)
+library(patchwork)
+library(here)
+library(FactoMineR)
+library(factoextra)
+library(simstudy)
+
+knitr::opts_chunk$set(echo = TRUE,
+                      results = "hide")
 ```
+
+
+
+```{r include=FALSE}
+theme_set(
+  ggthemes::theme_tufte(base_size = 11, base_family = "sans", ticks = TRUE) +
+  theme(title = element_text(color = "midnightblue"),
+        panel.grid.major  = element_blank(),
+        panel.grid.minor  = element_blank(),
+        plot.background = element_rect(fill = "gainsboro", color = NA))
+  )
+```
+
 
 
 
 # Data - Notation - Examples
 
+Let $\bar{x}_k$ be the mean of variable $k$ calculated over all individual
+instances of $I$.
 
 $$
-\bar{x_k} = \frac{1}{I}\sum_{i=1}^I{x_{ik}}
+\bar{x}_k = \frac{1}{I}\sum_{i=1}^I{x_{ik}}
 $$
+
+and the standard deviation is
+
+$$
+s_k = \sqrt{\frac{1}{I} \sum_{i=1}^I{(x_{ik}-\bar{x}_k})^2}
+$$
+
+
+# Objectives
+
+The orange orange data
+
+```{r}
+orange <- list()
+orange$data <- read.csv(here("orange.csv")) %>%
+  mutate(Brand = factor(Brand))
+# data used for factorial PCA
+orange$num <- orange$data %>%
+  select(where(is.numeric))
+skimr::skim(orange$data)
+```
+## Studying Individuals
+
+```{r}
+sim <- list()
+sim <- within(sim, {
+  defs <- defData(varname = "group", dist = "categorical", formula = "0.5;0.5")
+  defs <- defData(defs, varname = "j", dist = "normal", formula = "ifelse(group%%2, -1, 1)", variance = 0.1)
+  defs <- defData(defs, varname = "k", dist = "normal", formula = "ifelse(group%%2, -1, 1)", variance = 0.1)
+  data <- genData(defs, n = 40)
+})
+p <- list()
+p$p1 <- ggplot(sim$data, aes(j, k, color = abs(j * k))) +
+  geom_point(show.legend = FALSE) +
+  scale_color_paletteer_c("oompaBase::bluescale") +
+  coord_fixed()
+sim <- within(sim, {
+  defs <- defData(varname = "j", dist = "uniform", formula = "-1;1")
+  defs <- defData(defs, varname = "k", dist = "normal", formula = "j", variance = 0.05)
+  data <- genData(defs, n = 40)
+})
+p$p2 <- ggplot(sim$data, aes(j, k, color = abs(j * k))) +
+  geom_point(show.legend = FALSE) +
+  scale_color_paletteer_c("oompaBase::greenscale") +
+  coord_fixed()
+# p$p2
+sim <- within(sim, {
+  defs <- defData(varname = "j", dist = "normal", formula = 0, variance = 0.5)
+  defs <- defData(defs, varname = "k", dist = "normal", formula = 0, variance = 0.5)
+  data <- genData(defs, n = 40)
+})
+p$p3 <- ggplot(sim$data, aes(j, k, color = abs(j * k))) +
+  geom_point(show.legend = FALSE) +
+  scale_color_paletteer_c("oompaBase::redscale") +
+  coord_fixed()
+# p$p3
+wrap_plots(p)
+```
+
+### Example - orange
+
 
 
 ```{r}
-
+orange$pca <- orange$num %>%
+  PCA(scale.unit = TRUE, graph = FALSE)
+fviz_pca_var(orange$pca) | fviz_pca_ind(orange$pca)
 ```
+
+```{r}
+condes(orange$num, num.var = 2)
+```
+
+
+```{r}
+dimdesc(orange$pca)
+```
+
+# Studying Individuals
+
+
+# Studying Variables
+
+
+# Relationship between $N_I$ and $N_K$
+
+
+# Interpreting the Data
+
+
+# Implementation with `FactoMineR`
+
+
+
+# Additional Results
+
+
+
+# Example: Decathlon
+
+
 

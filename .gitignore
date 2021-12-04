@@ -29,3 +29,6 @@ fits/
 .Rproj
 # notebook html
 *.nb.html
+*.html
+*.csv
+*.xlsx
