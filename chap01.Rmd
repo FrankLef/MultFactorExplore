@@ -1,0 +1,23 @@
+---
+title: "Principal Component Analysis"
+output: html_notebook
+---
+
+```{r}
+# setup chunk
+```
+
+
+
+# Data - Notation - Examples
+
+
+$$
+\bar{x_k} = \frac{1}{I}\sum_{i=1}^I{x_{ik}}
+$$
+
+
+```{r}
+
+```
+

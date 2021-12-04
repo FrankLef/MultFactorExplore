@@ -27,3 +27,5 @@ _book/
 _bookdown_files/
 fits/
 .Rproj
+# notebook html
+*.nb.html
